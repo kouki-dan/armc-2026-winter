@@ -841,10 +841,15 @@
     </div>
 
     <script>
-        // Utility: Convert time array [seconds, nanoseconds] to total seconds
+        // Utility: Convert time array [high64, low64] (Int128 attoseconds) to total seconds
         function timeToSeconds(timeArr) {
-            if (!timeArr || timeArr.length < 1) return 0;
-            return timeArr[0];
+            if (!timeArr || timeArr.length < 2) return 0;
+            // SwiftのDurationはInt128のattosecondsを[上位64bit, 下位64bit]で表現
+            const high = BigInt(timeArr[0]);
+            const low = BigInt(timeArr[1]);
+            const attoseconds = (high << 64n) + low;
+            // attosecondsを秒に変換 (1秒 = 10^18 attoseconds)
+            return Number(attoseconds / 1000000000000000000n);
         }
 
         // Utility: Format seconds to MM:SS
